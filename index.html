@@ -28,10 +28,12 @@
     }
 
     p {
-      font-size: 1.2rem;
+      font-size: 1.3rem;
       max-width: 90%;
-      margin-bottom: 2rem;
+      margin: 1.5rem auto;
+      line-height: 1.6;
       font-weight: 600;
+      color: #000;
     }
 
     .btn-group {
@@ -72,7 +74,7 @@
       display: none;
       opacity: 0;
       animation: fadeIn 1.5s forwards ease-in;
-      color:#000000;
+      color: #000000;
       font-weight: bolder;
     }
 
@@ -84,31 +86,37 @@
 </head>
 <body>
   <h1><span id="receiverName">তামান্না</span>, একটি কথা ছিল...</h1>
-  <p style="font-size:1.3rem; max-width:90%; margin: 1.5rem auto; line-height:1.6; font-family: 'Noto Serif Bengali', serif; color: #000000;">অনেকদিন ধরেই মনে একটা কথা চেপে রেখেছি। সাহস করে আজ বলছি... তোমাকে আমার ভালো লাগে 😊<br>
+
+  <p>অনেকদিন ধরেই মনে একটা কথা চেপে রেখেছি। সাহস করে আজ বলছি... তোমাকে আমার ভালো লাগে 😊<br>
     তুমি কি আমার জীবনের সঙ্গী হতে চাও?</p>
 
   <div class="btn-group">
     <form id="responseForm">
       <input type="hidden" name="timestamp" id="timestamp" />
-      <input type="hidden" name="Dream_Girl_Response" id="response" />
+      <input type="hidden" name="Dream_Girl_Response" id="Dream_Girl_Response" />
       <button class="yes" type="button" onclick="submitResponse('হ্যাঁ')">হ্যাঁ</button>
       <button class="no" type="button" onclick="submitResponse('না')">না</button>
     </form>
   </div>
 
-  <div id="loveMsg">তুমি আমার জীবনকে পরিপূর্ণ করেছো 💖</div>
+  <div id="loveMsg">💖 তুমি আমার জীবনকে পরিপূর্ণ করেছো 💖</div>
   <div id="heartContainer"></div>
 
   <script>
-    const receiverName = "তামান্না"; // চাইলে এখানে নাম পরিবর্তন করুন
+    const receiverName = "তামান্না"; // এখানে নাম dynamic ভাবে পরিবর্তন করা যাবে
     document.getElementById("receiverName").innerText = receiverName;
 
     function submitResponse(answer) {
-      const timestamp = new Date().toLocaleString();
-      document.getElementById('timestamp').value = timestamp;
-      document.getElementById('response').value = answer;
+      // টাইমস্ট্যাম্প সেট
+      const timestamp = new Date().toLocaleString('bn-BD', {
+        timeZone: 'Asia/Dhaka'
+      });
+      document.getElementById("timestamp").value = timestamp;
 
-      // "হ্যাঁ" হলে প্রেমের বার্তা 
+      // উত্তর সেট
+      document.getElementById("Dream_Girl_Response").value = answer;
+
+      // প্রেমের বার্তা দেখানো (হ্যাঁ হলে)
       if (answer === 'হ্যাঁ') {
         const msg = document.getElementById('loveMsg');
         msg.style.display = 'block';
@@ -117,13 +125,21 @@
         alert("ধন্যবাদ, আপনার উত্তর পেয়েছি 😊");
       }
 
-      // Google Sheet-এ ডেটা পাঠানো
-      const formData = new FormData(document.getElementById('responseForm'));
-      fetch("https://script.google.com/macros/s/AKfycbym2iPdi20TmN_IQIhylMwddtV9q1fMIYX-_ER_5a4aIbrO85NUaQQ8-VLOTw_ejoRtsA/exec", {
+      // Google Sheet-এ পাঠানো
+      const form = document.getElementById("responseForm");
+      const formData = new FormData(form);
+
+      fetch("https://script.google.com/macros/s/AKfycbw0OUkBgmMtDfa3EgZgrS0FImFx8tA8CtMNVwalt5ApQQgPiyXFrZ0W0lYPjzm1_ERwLQ/exec", {
         method: "POST",
         body: formData
-      }).catch(error => {
-        alert("নেটওয়ার্ক সমস্যা হয়েছে: " + error.message);
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error("নেটওয়ার্ক সমস্যা হয়েছে!");
+        }
+      })
+      .catch(error => {
+        alert("সমস্যা: " + error.message);
       });
     }
   </script>
