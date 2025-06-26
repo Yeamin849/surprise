@@ -68,41 +68,52 @@
   </style>
 </head>
 <body>
-  <h1>তামান্না, একটি কথা ছিল...</h1>
+  <h1><span id="receiverName">তামান্না</span>, একটি কথা ছিল...</h1>
   <p>অনেকদিন ধরেই মনে একটা কথা চেপে রেখেছি। সাহস করে আজ বলছি... আমি তোমাকে ভালোবাসি ❤️<br>
-  তুমি কি আমার জীবনের সঙ্গী হতে চাও?</p>
+    তুমি কি আমার জীবনের সঙ্গী হতে চাও?</p>
   <div class="btn-group">
-    <form id="yesForm">
-      <input type="hidden" name="Tamanna_Response" value="Yes">
-      <button class="yes" type="submit">হ্যাঁ</button>
-    </form>
-    <form action="https://formsubmit.co/yeaminh849@gmail.com" method="POST">
-      <input type="hidden" name="Tamanna_Response" value="No">
-      <button class="no" type="submit">না</button>
+    <form id="responseForm">
+      <input type="hidden" name="timestamp" id="timestamp" />
+      <input type="hidden" name="Dream_Girl_Response" id="response" />
+      <button class="yes" type="button" onclick="submitResponse('হ্যাঁ')">হ্যাঁ</button>
+      <button class="no" type="button" onclick="submitResponse('না')">না</button>
     </form>
   </div>
   <div id="loveMsg">💖 তুমি আমার জীবনকে পরিপূর্ণ করেছো 💖</div>
 
   <script>
-    const form = document.getElementById('yesForm');
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
+    // Future proof: dynamic নাম ব্যবহার
+    const receiverName = "তামান্না"; // চাইলে এখানে নাম পরিবর্তন করলেই পুরো জায়গায় reflect হবে
+    document.getElementById("receiverName").innerText = receiverName;
+
+    function submitResponse(answer) {
+      const form = document.getElementById('responseForm');
+      const timestamp = new Date().toLocaleString();
+
+      document.getElementById('timestamp').value = timestamp;
+      document.getElementById('response').value = answer;
+
       const formData = new FormData(form);
-      fetch("https://formsubmit.co/yeaminh849@gmail.com", {
+
+      fetch("https://script.google.com/macros/s/AKfycbym2iPdi20TmN_IQIhylMwddtV9q1fMIYX-_ER_5a4aIbrO85NUaQQ8-VLOTw_ejoRtsA/exec", {
         method: "POST",
-        body: formData,
-        headers: {
-          'Accept': 'application/json'
-        }
+        body: formData
       }).then(response => {
         if (response.ok) {
-          const msg = document.getElementById('loveMsg');
-          msg.style.display = 'block';
+          if (answer === 'হ্যাঁ') {
+            const msg = document.getElementById('loveMsg');
+            msg.style.display = 'block';
+            msg.scrollIntoView({ behavior: 'smooth' });
+          } else {
+            alert("ধন্যবাদ, আপনার উত্তর পেয়েছি 😊");
+          }
         } else {
           alert("Oops! কিছু একটা সমস্যা হয়েছে 😢");
         }
+      }).catch(error => {
+        alert("নেটওয়ার্ক সমস্যা হয়েছে: " + error.message);
       });
-    });
+    }
   </script>
 </body>
 </html>
