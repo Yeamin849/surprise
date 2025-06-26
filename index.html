@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>তামান্না, একটি কথা ছিল...</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <title>তোমার জন্য একটি কথা...</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Bengali&display=swap" rel="stylesheet">
   <style>
     body {
@@ -19,20 +18,26 @@
       background: linear-gradient(to top right, #fbd3e9, #bb377d);
       color: #fff;
       text-align: center;
+      position: relative;
+      overflow: hidden;
     }
+
     h1 {
       font-size: 2.5rem;
       margin-bottom: 1rem;
     }
+
     p {
       font-size: 1.2rem;
       max-width: 90%;
       margin-bottom: 2rem;
     }
+
     .btn-group {
       display: flex;
       gap: 1rem;
     }
+
     button {
       padding: 0.7rem 1.5rem;
       font-size: 1rem;
@@ -41,29 +46,67 @@
       cursor: pointer;
       transition: background 0.3s;
     }
+
     .yes {
       background-color: #28a745;
       color: white;
     }
+
     .yes:hover {
       background-color: #218838;
     }
+
     .no {
       background-color: #dc3545;
       color: white;
     }
+
     .no:hover {
       background-color: #c82333;
     }
+
     #loveMsg {
       margin-top: 2rem;
       font-size: 1.4rem;
       display: none;
-      animation: fadeIn 2s ease-in;
+      opacity: 0;
+      animation: fadeIn 1.5s forwards ease-in;
     }
+
     @keyframes fadeIn {
       from { opacity: 0; transform: scale(0.9); }
-      to { opacity: 1; transform: scale(1); }
+      to { opacity: 1; transform: scale(1); opacity: 1; }
+    }
+
+    .heart {
+      width: 100px;
+      height: 90px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(1);
+      animation: pop 1s ease-out forwards;
+      z-index: 10;
+    }
+
+    .heart::before,
+    .heart::after {
+      content: "";
+      width: 100px;
+      height: 90px;
+      background: red;
+      position: absolute;
+      border-radius: 50%;
+    }
+
+    .heart::before {
+      top: -45px;
+      left: 0;
+    }
+
+    .heart::after {
+      left: 45px;
+      top: 0;
     }
   </style>
 </head>
@@ -71,6 +114,7 @@
   <h1><span id="receiverName">তামান্না</span>, একটি কথা ছিল...</h1>
   <p>অনেকদিন ধরেই মনে একটা কথা চেপে রেখেছি। সাহস করে আজ বলছি... আমি তোমাকে ভালোবাসি ❤️<br>
     তুমি কি আমার জীবনের সঙ্গী হতে চাও?</p>
+
   <div class="btn-group">
     <form id="responseForm">
       <input type="hidden" name="timestamp" id="timestamp" />
@@ -79,37 +123,42 @@
       <button class="no" type="button" onclick="submitResponse('না')">না</button>
     </form>
   </div>
+
   <div id="loveMsg">💖 তুমি আমার জীবনকে পরিপূর্ণ করেছো 💖</div>
+  <div id="heartContainer"></div>
 
   <script>
-    // Future proof: dynamic নাম ব্যবহার
-    const receiverName = "তামান্না"; // চাইলে এখানে নাম পরিবর্তন করলেই পুরো জায়গায় reflect হবে
+    const receiverName = "তামান্না"; // চাইলে এখানে নাম পরিবর্তন করুন
     document.getElementById("receiverName").innerText = receiverName;
 
     function submitResponse(answer) {
-      const form = document.getElementById('responseForm');
       const timestamp = new Date().toLocaleString();
-
       document.getElementById('timestamp').value = timestamp;
       document.getElementById('response').value = answer;
 
-      const formData = new FormData(form);
+      // "হ্যাঁ" হলে প্রেমের বার্তা + হার্ট
+      if (answer === 'হ্যাঁ') {
+        const msg = document.getElementById('loveMsg');
+        msg.style.display = 'block';
+        msg.scrollIntoView({ behavior: 'smooth' });
 
-      fetch("https://script.google.com/macros/s/AKfycbwyOeq07vlnotzyva1QFGwkXdFcL-I-qB1VZrn3f6NlVrwZPZuaUFdlXY5ShuuglTIV9Q/exec", {
+        // হার্ট অ্যানিমেশন
+        const heart = document.createElement("div");
+        heart.classList.add("heart");
+        document.getElementById("heartContainer").appendChild(heart);
+
+        setTimeout(() => {
+          heart.remove();
+        }, 1000);
+      } else {
+        alert("ধন্যবাদ, আপনার উত্তর পেয়েছি 😊");
+      }
+
+      // Google Sheet-এ ডেটা পাঠানো
+      const formData = new FormData(document.getElementById('responseForm'));
+      fetch("https://script.google.com/macros/s/AKfycbym2iPdi20TmN_IQIhylMwddtV9q1fMIYX-_ER_5a4aIbrO85NUaQQ8-VLOTw_ejoRtsA/exec", {
         method: "POST",
         body: formData
-      }).then(response => {
-        if (response.ok) {
-          if (answer === 'হ্যাঁ') {
-            const msg = document.getElementById('loveMsg');
-            msg.style.display = 'block';
-            msg.scrollIntoView({ behavior: 'smooth' });
-          } else {
-            alert("ধন্যবাদ, আপনার উত্তর পেয়েছি 😊");
-          }
-        } else {
-          alert("Oops! কিছু একটা সমস্যা হয়েছে 😢");
-        }
       }).catch(error => {
         alert("নেটওয়ার্ক সমস্যা হয়েছে: " + error.message);
       });
